@@ -1,0 +1,221 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block head_title %}{% if object %}Edit Report{% else %}Create Report{% endif %}{% endblock %}
+
+{% block extra_css %}
+<style>
+.custom-report-options {
+    display: none;
+}
+.custom-report-options.show {
+    display: block;
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card">
+                <div class="card-header">
+                    <h1 class="h4 mb-0">{% if object %}Edit Report{% else %}Create Report{% endif %}</h1>
+                </div>
+                <div class="card-body">
+                    <form method="post" class="needs-validation" novalidate>
+                        {% csrf_token %}
+                        
+                        <div class="mb-3">
+                            <label for="id_name" class="form-label">Report Name</label>
+                            <input type="text" 
+                                   class="form-control {% if form.name.errors %}is-invalid{% endif %}" 
+                                   id="id_name" 
+                                   name="name" 
+                                   value="{{ form.name.value|default:'' }}"
+                                   required>
+                            {% if form.name.errors %}
+                            <div class="invalid-feedback">
+                                {{ form.name.errors|join:", " }}
+                            </div>
+                            {% endif %}
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="id_description" class="form-label">Description</label>
+                            <textarea class="form-control {% if form.description.errors %}is-invalid{% endif %}" 
+                                      id="id_description" 
+                                      name="description" 
+                                      rows="3">{{ form.description.value|default:'' }}</textarea>
+                            {% if form.description.errors %}
+                            <div class="invalid-feedback">
+                                {{ form.description.errors|join:", " }}
+                            </div>
+                            {% endif %}
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="id_report_type" class="form-label">Report Type</label>
+                            <select class="form-select {% if form.report_type.errors %}is-invalid{% endif %}" 
+                                    id="id_report_type" 
+                                    name="report_type" 
+                                    required>
+                                <option value="">Select a report type</option>
+                                {% for value, label in form.fields.report_type.choices %}
+                                <option value="{{ value }}" {% if form.report_type.value == value %}selected{% endif %}>
+                                    {{ label }}
+                                </option>
+                                {% endfor %}
+                            </select>
+                            {% if form.report_type.errors %}
+                            <div class="invalid-feedback">
+                                {{ form.report_type.errors|join:", " }}
+                            </div>
+                            {% endif %}
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="id_schedule_frequency" class="form-label">Schedule Frequency</label>
+                            <select class="form-select {% if form.schedule_frequency.errors %}is-invalid{% endif %}" 
+                                    id="id_schedule_frequency" 
+                                    name="schedule_frequency" 
+                                    required>
+                                <option value="">Select frequency</option>
+                                {% for value, label in form.fields.schedule_frequency.choices %}
+                                <option value="{{ value }}" {% if form.schedule_frequency.value == value %}selected{% endif %}>
+                                    {{ label }}
+                                </option>
+                                {% endfor %}
+                            </select>
+                            {% if form.schedule_frequency.errors %}
+                            <div class="invalid-feedback">
+                                {{ form.schedule_frequency.errors|join:", " }}
+                            </div>
+                            {% endif %}
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="id_days" class="form-label">Time Range (Days)</label>
+                            <input type="number" 
+                                   class="form-control" 
+                                   id="id_days" 
+                                   name="parameters[days]" 
+                                   value="{{ form.parameters.value.days|default:30 }}"
+                                   min="1" 
+                                   max="365" 
+                                   required>
+                        </div>
+
+                        <!-- Job Performance Options -->
+                        <div id="jobPerformanceOptions" class="mb-3" style="display: none;">
+                            <label class="form-label">Select Jobs</label>
+                            <div class="job-selection">
+                                {% for job in jobs %}
+                                <div class="form-check">
+                                    <input type="checkbox" 
+                                           class="form-check-input" 
+                                           name="parameters[job_ids][]" 
+                                           value="{{ job.id }}"
+                                           id="job_{{ job.id }}"
+                                           {% if job.id in form.parameters.value.job_ids %}checked{% endif %}>
+                                    <label class="form-check-label" for="job_{{ job.id }}">
+                                        {{ job.title }}
+                                    </label>
+                                </div>
+                                {% endfor %}
+                            </div>
+                        </div>
+
+                        <!-- Custom Report Options -->
+                        <div id="customReportOptions" class="mb-3 custom-report-options">
+                            <label class="form-label">Include Metrics</label>
+                            <div class="form-check">
+                                <input type="checkbox" 
+                                       class="form-check-input" 
+                                       name="parameters[include_user_engagement]" 
+                                       id="include_user_engagement"
+                                       {% if form.parameters.value.include_user_engagement %}checked{% endif %}>
+                                <label class="form-check-label" for="include_user_engagement">
+                                    User Engagement
+                                </label>
+                            </div>
+                            <div class="form-check">
+                                <input type="checkbox" 
+                                       class="form-check-input" 
+                                       name="parameters[include_job_performance]" 
+                                       id="include_job_performance"
+                                       {% if form.parameters.value.include_job_performance %}checked{% endif %}>
+                                <label class="form-check-label" for="include_job_performance">
+                                    Job Performance
+                                </label>
+                            </div>
+                            <div class="form-check">
+                                <input type="checkbox" 
+                                       class="form-check-input" 
+                                       name="parameters[include_funnel]" 
+                                       id="include_funnel"
+                                       {% if form.parameters.value.include_funnel %}checked{% endif %}>
+                                <label class="form-check-label" for="include_funnel">
+                                    Application Funnel
+                                </label>
+                            </div>
+                            <div class="form-check">
+                                <input type="checkbox" 
+                                       class="form-check-input" 
+                                       name="parameters[include_platform]" 
+                                       id="include_platform"
+                                       {% if form.parameters.value.include_platform %}checked{% endif %}>
+                                <label class="form-check-label" for="include_platform">
+                                    Platform Metrics
+                                </label>
+                            </div>
+                        </div>
+
+                        <div class="d-flex justify-content-between">
+                            <a href="{% url 'jobs:admin_analytics' %}" class="btn btn-outline-secondary">Cancel</a>
+                            <button type="submit" class="btn btn-primary">
+                                {% if object %}Update{% else %}Create{% endif %} Report
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const reportTypeSelect = document.getElementById('id_report_type');
+    const jobPerformanceOptions = document.getElementById('jobPerformanceOptions');
+    const customReportOptions = document.getElementById('customReportOptions');
+    
+    function updateFormOptions() {
+        const selectedType = reportTypeSelect.value;
+        
+        // Show/hide job performance options
+        jobPerformanceOptions.style.display = 
+            (selectedType === 'job_performance' || 
+             (selectedType === 'custom' && document.getElementById('include_job_performance').checked))
+            ? 'block' : 'none';
+        
+        // Show/hide custom report options
+        customReportOptions.classList.toggle('show', selectedType === 'custom');
+    }
+    
+    reportTypeSelect.addEventListener('change', updateFormOptions);
+    
+    // Handle custom report option changes
+    document.getElementById('include_job_performance').addEventListener('change', function(e) {
+        if (reportTypeSelect.value === 'custom') {
+            jobPerformanceOptions.style.display = e.target.checked ? 'block' : 'none';
+        }
+    });
+    
+    // Initial setup
+    updateFormOptions();
+});
+</script>
+{% endblock %} 

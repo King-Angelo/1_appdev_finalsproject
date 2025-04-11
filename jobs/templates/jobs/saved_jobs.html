@@ -1,0 +1,65 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container py-4">
+    <div class="row">
+        <div class="col-md-8">
+            <h1 class="mb-4">Saved Jobs</h1>
+            
+            {% if saved_jobs %}
+                {% for saved_job in saved_jobs %}
+                    <div class="card mb-3">
+                        <div class="card-body">
+                            <h5 class="card-title">{{ saved_job.job.title }}</h5>
+                            <h6 class="card-subtitle mb-2 text-muted">{{ saved_job.job.employer.company_name }}</h6>
+                            <p class="card-text">
+                                <span class="badge bg-primary">{{ saved_job.job.job_type }}</span>
+                                <span class="badge bg-secondary">{{ saved_job.job.location }}</span>
+                                <span class="badge bg-info">Deadline: {{ saved_job.job.deadline|date:"M d, Y" }}</span>
+                            </p>
+                            <p class="card-text">{{ saved_job.job.description|truncatewords:30 }}</p>
+                            
+                            {% if saved_job.notes %}
+                                <div class="alert alert-info">
+                                    <strong>Your Notes:</strong>
+                                    <p class="mb-0">{{ saved_job.notes }}</p>
+                                </div>
+                            {% endif %}
+                            
+                            <div class="d-flex gap-2">
+                                <a href="{% url 'jobs:job_detail' saved_job.job.pk %}" class="btn btn-primary">View Details</a>
+                                <a href="{% url 'jobs:job_apply' saved_job.job.pk %}" class="btn btn-success">Apply Now</a>
+                            </div>
+                        </div>
+                    </div>
+                {% endfor %}
+            {% else %}
+                <div class="alert alert-info">
+                    <p class="mb-0">You haven't saved any jobs yet.</p>
+                    <a href="{% url 'jobs:job_list' %}" class="btn btn-primary mt-2">Browse Jobs</a>
+                </div>
+            {% endif %}
+        </div>
+        
+        <div class="col-md-4">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">Quick Actions</h5>
+                    <ul class="list-unstyled">
+                        <li class="mb-2">
+                            <a href="{% url 'jobs:job_list' %}" class="text-decoration-none">
+                                <i class="fas fa-search"></i> Browse All Jobs
+                            </a>
+                        </li>
+                        <li class="mb-2">
+                            <a href="{% url 'jobs:jobseeker_dashboard' %}" class="text-decoration-none">
+                                <i class="fas fa-tachometer-alt"></i> Dashboard
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %} 

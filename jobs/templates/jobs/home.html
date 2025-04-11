@@ -1,0 +1,102 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block head_title %}Job Portal - Find Your Next Career{% endblock %}
+
+{% block content %}
+<div class="row mb-5">
+    <div class="col-md-12 text-center">
+        <h1 class="display-4 mb-3">Welcome to the Job Portal</h1>
+        <p class="lead">Find your dream job or hire the perfect candidate</p>
+    </div>
+</div>
+
+<div class="row mb-5">
+    <div class="col-md-6">
+        <div class="card h-100">
+            <div class="card-header bg-primary text-white">
+                <h3 class="mb-0">For Job Seekers</h3>
+            </div>
+            <div class="card-body">
+                <p class="card-text">Looking for your next career opportunity? Register as a job seeker to:</p>
+                <ul class="list-group list-group-flush mb-4">
+                    <li class="list-group-item"><i class="fas fa-check-circle text-success me-2"></i>Browse and apply for jobs</li>
+                    <li class="list-group-item"><i class="fas fa-check-circle text-success me-2"></i>Save jobs for later</li>
+                    <li class="list-group-item"><i class="fas fa-check-circle text-success me-2"></i>Track your applications</li>
+                    <li class="list-group-item"><i class="fas fa-check-circle text-success me-2"></i>Get matched with relevant jobs</li>
+                </ul>
+                {% if user.is_authenticated and user.jobseeker %}
+                    <a href="{% url 'jobs:job_list' %}" class="btn btn-primary">Browse Jobs</a>
+                {% elif user.is_authenticated and user.employer %}
+                    <div class="alert alert-warning">
+                        You are registered as an employer. Please use a different account to register as a job seeker.
+                    </div>
+                {% else %}
+                    <a href="{% url 'jobs:jobseeker_registration' %}" class="btn btn-primary">Register as Job Seeker</a>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+    <div class="col-md-6">
+        <div class="card h-100">
+            <div class="card-header bg-success text-white">
+                <h3 class="mb-0">For Employers</h3>
+            </div>
+            <div class="card-body">
+                <p class="card-text">Looking to hire talented professionals? Register as an employer to:</p>
+                <ul class="list-group list-group-flush mb-4">
+                    <li class="list-group-item"><i class="fas fa-check-circle text-success me-2"></i>Post job openings</li>
+                    <li class="list-group-item"><i class="fas fa-check-circle text-success me-2"></i>Manage applications</li>
+                    <li class="list-group-item"><i class="fas fa-check-circle text-success me-2"></i>Find qualified candidates</li>
+                    <li class="list-group-item"><i class="fas fa-check-circle text-success me-2"></i>Track application status</li>
+                </ul>
+                {% if user.is_authenticated and user.employer %}
+                    <a href="{% url 'jobs:employer_dashboard' %}" class="btn btn-success">Go to Dashboard</a>
+                {% elif user.is_authenticated and user.jobseeker %}
+                    <div class="alert alert-warning">
+                        You are registered as a job seeker. Please use a different account to register as an employer.
+                    </div>
+                {% else %}
+                    <a href="{% url 'jobs:employer_registration' %}" class="btn btn-success">Register as Employer</a>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row mb-5">
+    <div class="col-md-12">
+        <h2 class="text-center mb-4">Featured Jobs</h2>
+        {% if jobs %}
+            <div class="row">
+                {% for job in jobs %}
+                    <div class="col-md-4 mb-4">
+                        <div class="card h-100">
+                            <div class="card-body">
+                                <h5 class="card-title">{{ job.title }}</h5>
+                                <h6 class="card-subtitle mb-2 text-muted">{{ job.employer.company_name }}</h6>
+                                <p class="card-text">
+                                    <i class="fas fa-map-marker-alt me-2"></i>{{ job.location }}
+                                    <br>
+                                    <i class="fas fa-briefcase me-2"></i>{{ job.get_job_type_display }}
+                                </p>
+                                <a href="{% url 'jobs:job_detail' job.pk %}" class="btn btn-outline-primary">View Details</a>
+                            </div>
+                            <div class="card-footer text-muted">
+                                Posted {{ job.created_at|timesince }} ago
+                            </div>
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+            <div class="text-center mt-4">
+                <a href="{% url 'jobs:job_list' %}" class="btn btn-primary">View All Jobs</a>
+            </div>
+        {% else %}
+            <div class="alert alert-info text-center">
+                No jobs available at the moment. Check back later!
+            </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %} 

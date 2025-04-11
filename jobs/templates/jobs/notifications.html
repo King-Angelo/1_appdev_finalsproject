@@ -1,0 +1,187 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block extra_css %}
+<style>
+    .notification-list {
+        max-width: 800px;
+        margin: 0 auto;
+    }
+    .notification-item {
+        padding: 1rem;
+        border-bottom: 1px solid #eee;
+        transition: background-color 0.2s;
+    }
+    .notification-item:hover {
+        background-color: #f8f9fa;
+    }
+    .notification-item.unread {
+        background-color: #e8f4fd;
+    }
+    .notification-item.unread:hover {
+        background-color: #d8eaf9;
+    }
+    .notification-title {
+        font-weight: 600;
+        color: #2c3e50;
+        margin-bottom: 0.25rem;
+    }
+    .notification-message {
+        color: #666;
+        margin-bottom: 0.5rem;
+    }
+    .notification-meta {
+        font-size: 0.875rem;
+        color: #999;
+    }
+    .notification-actions {
+        margin-top: 1rem;
+        display: flex;
+        gap: 1rem;
+    }
+    .mark-all-read {
+        margin-bottom: 1rem;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <div class="notification-list">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h2>Notifications</h2>
+            {% if notifications|length > 0 %}
+            <button class="btn btn-outline-primary mark-all-read" data-action="mark-all-read">
+                Mark all as read
+            </button>
+            {% endif %}
+        </div>
+
+        {% if notifications %}
+            {% for notification in notifications %}
+            <div class="notification-item {% if not notification.read %}unread{% endif %}" data-notification-id="{{ notification.id }}">
+                <div class="notification-title">{{ notification.title }}</div>
+                <div class="notification-message">{{ notification.message }}</div>
+                <div class="notification-meta">
+                    {{ notification.created_at|timesince }} ago
+                </div>
+                {% if notification.target_url %}
+                <div class="notification-actions">
+                    <a href="{{ notification.target_url }}" class="btn btn-sm btn-primary">View Details</a>
+                    {% if not notification.read %}
+                    <button class="btn btn-sm btn-outline-secondary mark-read" data-notification-id="{{ notification.id }}">
+                        Mark as Read
+                    </button>
+                    {% endif %}
+                </div>
+                {% endif %}
+            </div>
+            {% endfor %}
+
+            {% if page_obj.has_other_pages %}
+            <nav class="mt-4">
+                <ul class="pagination justify-content-center">
+                    {% if page_obj.has_previous %}
+                    <li class="page-item">
+                        <a class="page-link" href="?page={{ page_obj.previous_page_number }}">Previous</a>
+                    </li>
+                    {% endif %}
+
+                    {% for num in page_obj.paginator.page_range %}
+                    <li class="page-item {% if page_obj.number == num %}active{% endif %}">
+                        <a class="page-link" href="?page={{ num }}">{{ num }}</a>
+                    </li>
+                    {% endfor %}
+
+                    {% if page_obj.has_next %}
+                    <li class="page-item">
+                        <a class="page-link" href="?page={{ page_obj.next_page_number }}">Next</a>
+                    </li>
+                    {% endif %}
+                </ul>
+            </nav>
+            {% endif %}
+        {% else %}
+            <div class="text-center py-5">
+                <p class="text-muted">No notifications to display</p>
+            </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Handle individual notification mark as read
+    document.querySelectorAll('.mark-read').forEach(button => {
+        button.addEventListener('click', function() {
+            const notificationId = this.dataset.notificationId;
+            markNotificationsRead([notificationId]);
+        });
+    });
+
+    // Handle mark all as read
+    const markAllButton = document.querySelector('[data-action="mark-all-read"]');
+    if (markAllButton) {
+        markAllButton.addEventListener('click', function() {
+            markNotificationsRead([], true);
+        });
+    }
+
+    function markNotificationsRead(notificationIds, markAll = false) {
+        const formData = new FormData();
+        if (markAll) {
+            formData.append('mark_all', 'true');
+        } else {
+            notificationIds.forEach(id => formData.append('notification_ids[]', id));
+        }
+
+        fetch('{% url "jobs:mark_notifications_read" %}', {
+            method: 'POST',
+            body: formData,
+            headers: {
+                'X-CSRFToken': getCookie('csrftoken')
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.status === 'success') {
+                if (markAll) {
+                    document.querySelectorAll('.notification-item.unread').forEach(item => {
+                        item.classList.remove('unread');
+                        const markReadBtn = item.querySelector('.mark-read');
+                        if (markReadBtn) markReadBtn.remove();
+                    });
+                    markAllButton.remove();
+                } else {
+                    notificationIds.forEach(id => {
+                        const item = document.querySelector(`.notification-item[data-notification-id="${id}"]`);
+                        if (item) {
+                            item.classList.remove('unread');
+                            const markReadBtn = item.querySelector('.mark-read');
+                            if (markReadBtn) markReadBtn.remove();
+                        }
+                    });
+                }
+            }
+        });
+    }
+
+    function getCookie(name) {
+        let cookieValue = null;
+        if (document.cookie && document.cookie !== '') {
+            const cookies = document.cookie.split(';');
+            for (let i = 0; i < cookies.length; i++) {
+                const cookie = cookies[i].trim();
+                if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                    cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                    break;
+                }
+            }
+        }
+        return cookieValue;
+    }
+});
+</script>
+{% endblock %} 

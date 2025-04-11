@@ -1,0 +1,277 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/chart.js@3.7.0/dist/chart.min.css">
+<style>
+.metric-card {
+    background: white;
+    border-radius: 0.5rem;
+    padding: 1.5rem;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.metric-title {
+    font-size: 0.875rem;
+    font-weight: 600;
+    color: #6b7280;
+    margin-bottom: 0.5rem;
+}
+
+.metric-value {
+    font-size: 1.875rem;
+    font-weight: 700;
+    color: #111827;
+    margin-bottom: 0.25rem;
+}
+
+.metric-change {
+    font-size: 0.875rem;
+    display: flex;
+    align-items: center;
+}
+
+.metric-change.positive {
+    color: #059669;
+}
+
+.metric-change.negative {
+    color: #dc2626;
+}
+
+.chart-container {
+    background: white;
+    border-radius: 0.5rem;
+    padding: 1.5rem;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+    margin-bottom: 1.5rem;
+}
+
+.chart-title {
+    font-size: 1rem;
+    font-weight: 600;
+    color: #374151;
+    margin-bottom: 1rem;
+}
+
+.job-card {
+    background: white;
+    border-radius: 0.5rem;
+    padding: 1rem;
+    margin-bottom: 1rem;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+}
+
+.job-title {
+    font-size: 1rem;
+    font-weight: 600;
+    color: #111827;
+    margin-bottom: 0.5rem;
+}
+
+.job-stats {
+    display: flex;
+    gap: 1rem;
+    font-size: 0.875rem;
+    color: #6b7280;
+}
+
+.job-stat {
+    display: flex;
+    align-items: center;
+}
+
+.job-stat i {
+    margin-right: 0.25rem;
+}
+
+.skill-badge {
+    display: inline-block;
+    padding: 0.25rem 0.75rem;
+    border-radius: 9999px;
+    font-size: 0.75rem;
+    font-weight: 500;
+    background-color: #e5e7eb;
+    color: #374151;
+    margin: 0.25rem;
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid py-4">
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center">
+                <h1 class="h3 mb-0">Analytics Dashboard</h1>
+                <div class="btn-group">
+                    <a href="?date_range=7" class="btn btn-outline-primary {% if date_range == '7' %}active{% endif %}">7 Days</a>
+                    <a href="?date_range=30" class="btn btn-outline-primary {% if date_range == '30' %}active{% endif %}">30 Days</a>
+                    <a href="?date_range=90" class="btn btn-outline-primary {% if date_range == '90' %}active{% endif %}">90 Days</a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Key Metrics -->
+    <div class="row g-4 mb-4">
+        <div class="col-md-3">
+            <div class="metric-card">
+                <div class="metric-title">Active Jobs</div>
+                <div class="metric-value">{{ active_jobs_count }}</div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="metric-card">
+                <div class="metric-title">Total Views</div>
+                <div class="metric-value">{{ total_views }}</div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="metric-card">
+                <div class="metric-title">Total Applications</div>
+                <div class="metric-value">{{ total_applications }}</div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="metric-card">
+                <div class="metric-title">Average CTR</div>
+                <div class="metric-value">{{ avg_ctr|floatformat:1 }}%</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <!-- Application Trends -->
+        <div class="col-md-8">
+            <div class="chart-container">
+                <h2 class="chart-title">Application Trends</h2>
+                <canvas id="applicationsChart"></canvas>
+            </div>
+        </div>
+
+        <!-- Top Performing Jobs -->
+        <div class="col-md-4">
+            <div class="chart-container">
+                <h2 class="chart-title">Top Performing Jobs</h2>
+                {% for job in top_jobs %}
+                <div class="job-card">
+                    <h3 class="job-title">
+                        <a href="{% url 'jobs:job_analytics' job.pk %}" class="text-decoration-none">{{ job.title }}</a>
+                    </h3>
+                    <div class="job-stats">
+                        <div class="job-stat">
+                            <i class="fas fa-eye"></i>
+                            {{ job.metrics.views }}
+                        </div>
+                        <div class="job-stat">
+                            <i class="fas fa-paper-plane"></i>
+                            {{ job.metrics.applications }}
+                        </div>
+                        <div class="job-stat">
+                            <i class="fas fa-chart-line"></i>
+                            {{ job.metrics.application_rate|floatformat:1 }}%
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <!-- Experience Distribution -->
+        <div class="col-md-6">
+            <div class="chart-container">
+                <h2 class="chart-title">Applicant Experience Distribution</h2>
+                <canvas id="experienceChart"></canvas>
+            </div>
+        </div>
+
+        <!-- Top Skills -->
+        <div class="col-md-6">
+            <div class="chart-container">
+                <h2 class="chart-title">Most Common Applicant Skills</h2>
+                <div class="text-center">
+                    {% for skill in skill_distribution %}
+                    <span class="skill-badge">
+                        {{ skill.jobseeker__skills__name }}
+                        <span class="ms-1 text-muted">({{ skill.count }})</span>
+                    </span>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js@3.7.0/dist/chart.min.js"></script>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Application Trends Chart
+    const applicationsCtx = document.getElementById('applicationsChart').getContext('2d');
+    new Chart(applicationsCtx, {
+        type: 'line',
+        data: {
+            labels: [{% for app in daily_applications %}'{{ app.date|date:"M d" }}'{% if not forloop.last %}, {% endif %}{% endfor %}],
+            datasets: [{
+                label: 'Applications',
+                data: [{% for app in daily_applications %}{{ app.count }}{% if not forloop.last %}, {% endif %}{% endfor %}],
+                borderColor: '#3b82f6',
+                backgroundColor: 'rgba(59, 130, 246, 0.1)',
+                fill: true,
+                tension: 0.4
+            }]
+        },
+        options: {
+            responsive: true,
+            plugins: {
+                legend: {
+                    display: false
+                }
+            },
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    ticks: {
+                        precision: 0
+                    }
+                }
+            }
+        }
+    });
+
+    // Experience Distribution Chart
+    const experienceCtx = document.getElementById('experienceChart').getContext('2d');
+    new Chart(experienceCtx, {
+        type: 'bar',
+        data: {
+            labels: [{% for exp in experience_distribution %}'{{ exp.jobseeker__experience_years }} years'{% if not forloop.last %}, {% endif %}{% endfor %}],
+            datasets: [{
+                label: 'Applicants',
+                data: [{% for exp in experience_distribution %}{{ exp.count }}{% if not forloop.last %}, {% endif %}{% endfor %}],
+                backgroundColor: '#3b82f6'
+            }]
+        },
+        options: {
+            responsive: true,
+            plugins: {
+                legend: {
+                    display: false
+                }
+            },
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    ticks: {
+                        precision: 0
+                    }
+                }
+            }
+        }
+    });
+});
+</script>
+{% endblock %} 
