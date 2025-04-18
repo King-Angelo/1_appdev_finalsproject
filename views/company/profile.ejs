@@ -1,0 +1,119 @@
+<%- include('../layouts/main', { title: 'Company Profile' }) %>
+
+<div class="company-profile-container">
+    <div class="row">
+        <!-- Company Header -->
+        <div class="col-12 mb-4">
+            <div class="company-header card">
+                <div class="card-body">
+                    <div class="row align-items-center">
+                        <div class="col-md-2">
+                            <img src="<%= company.logo || '/images/default-company.png' %>" alt="Company Logo" class="company-logo img-fluid">
+                        </div>
+                        <div class="col-md-8">
+                            <h1 class="company-name"><%= company.name %></h1>
+                            <p class="company-tagline"><%= company.tagline %></p>
+                            <div class="company-meta">
+                                <span><i class="fas fa-map-marker-alt"></i> <%= company.location %></span>
+                                <span><i class="fas fa-users"></i> <%= company.size %> employees</span>
+                                <span><i class="fas fa-globe"></i> <a href="<%= company.website %>" target="_blank">Website</a></span>
+                            </div>
+                        </div>
+                        <div class="col-md-2 text-end">
+                            <% if (isOwner) { %>
+                                <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#editCompanyModal">
+                                    <i class="fas fa-edit"></i> Edit Profile
+                                </button>
+                            <% } %>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Company Content -->
+        <div class="col-md-8">
+            <!-- About Section -->
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h5 class="mb-0">About Company</h5>
+                </div>
+                <div class="card-body">
+                    <%- company.description %>
+                </div>
+            </div>
+
+            <!-- Open Positions -->
+            <div class="card mb-4">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0">Open Positions</h5>
+                    <% if (isOwner) { %>
+                        <a href="/jobs/create" class="btn btn-primary btn-sm">
+                            <i class="fas fa-plus"></i> Post New Job
+                        </a>
+                    <% } %>
+                </div>
+                <div class="card-body">
+                    <% if (jobs.length > 0) { %>
+                        <div class="jobs-list">
+                            <% jobs.forEach(job => { %>
+                                <div class="job-item">
+                                    <h5><a href="/jobs/<%= job._id %>"><%= job.title %></a></h5>
+                                    <div class="job-meta">
+                                        <span><i class="fas fa-map-marker-alt"></i> <%= job.location %></span>
+                                        <span><i class="fas fa-briefcase"></i> <%= job.type %></span>
+                                        <span><i class="fas fa-clock"></i> Posted <%= timeAgo(job.createdAt) %></span>
+                                    </div>
+                                </div>
+                            <% }) %>
+                        </div>
+                    <% } else { %>
+                        <p class="text-muted text-center py-3">No open positions at the moment.</p>
+                    <% } %>
+                </div>
+            </div>
+        </div>
+
+        <!-- Company Sidebar -->
+        <div class="col-md-4">
+            <!-- Company Stats -->
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h5 class="mb-0">Company Stats</h5>
+                </div>
+                <div class="card-body">
+                    <div class="stat-item">
+                        <span class="stat-label">Total Jobs Posted</span>
+                        <span class="stat-value"><%= stats.totalJobs %></span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-label">Active Jobs</span>
+                        <span class="stat-value"><%= stats.activeJobs %></span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-label">Total Applications</span>
+                        <span class="stat-value"><%= stats.totalApplications %></span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Company Benefits -->
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h5 class="mb-0">Benefits</h5>
+                </div>
+                <div class="card-body">
+                    <ul class="benefits-list">
+                        <% company.benefits.forEach(benefit => { %>
+                            <li><i class="fas fa-check-circle"></i> <%= benefit %></li>
+                        <% }) %>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<% if (isOwner) { %>
+    <%- include('../partials/edit-company-modal', { company }) %>
+<% } %> 

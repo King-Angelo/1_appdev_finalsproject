@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Employer Dashboard</title>
+    <link rel="stylesheet" href="/css/dashboard.css">
+</head>
+<body>
+    <%- include('../partials/header') %>
+    
+    <div class="dashboard-container">
+        <div class="stats-section">
+            <div class="stat-card">
+                <h3>Total Jobs</h3>
+                <p><%= stats.totalJobs %></p>
+            </div>
+            <div class="stat-card">
+                <h3>Active Jobs</h3>
+                <p><%= stats.activeJobs %></p>
+            </div>
+            <div class="stat-card">
+                <h3>Total Applications</h3>
+                <p><%= stats.totalApplications %></p>
+            </div>
+        </div>
+
+        <div class="recent-jobs">
+            <h2>Recent Job Postings</h2>
+            <% postedJobs.forEach(job => { %>
+                <div class="job-card">
+                    <h3><%= job.title %></h3>
+                    <p>Posted: <%= job.createdAt.toLocaleDateString() %></p>
+                    <p>Status: <%= job.status %></p>
+                    <a href="/jobs/<%= job._id %>" class="btn">View Details</a>
+                </div>
+            <% }) %>
+        </div>
+
+        <div class="recent-applications">
+            <h2>Recent Applications</h2>
+            <% recentApplications.forEach(application => { %>
+                <div class="application-card">
+                    <h3><%= application.jobseeker.firstName %> <%= application.jobseeker.lastName %></h3>
+                    <p>Applied for: <%= application.job.title %></p>
+                    <p>Date: <%= application.createdAt.toLocaleDateString() %></p>
+                    <a href="/applications/<%= application._id %>" class="btn">Review</a>
+                </div>
+            <% }) %>
+        </div>
+    </div>
+
+    <%- include('../partials/footer') %>
+</body>
+</html> 

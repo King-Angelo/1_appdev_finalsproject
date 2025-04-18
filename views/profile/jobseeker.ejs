@@ -1,0 +1,116 @@
+<%- include('../layouts/main', { title: 'Profile' }) %>
+
+<div class="profile-container">
+    <div class="row">
+        <!-- Profile Sidebar -->
+        <div class="col-md-3">
+            <div class="card profile-sidebar">
+                <div class="card-body text-center">
+                    <div class="profile-image mb-3">
+                        <img src="<%= user.avatar || '/images/default-avatar.png' %>" alt="Profile" class="rounded-circle">
+                        <button class="btn btn-sm btn-light mt-2" data-bs-toggle="modal" data-bs-target="#avatarModal">
+                            <i class="fas fa-camera"></i> Change Photo
+                        </button>
+                    </div>
+                    <h4><%= user.firstName %> <%= user.lastName %></h4>
+                    <p class="text-muted"><%= user.title || 'Job Title' %></p>
+                </div>
+                <div class="list-group list-group-flush">
+                    <a href="#personal" class="list-group-item list-group-item-action active">Personal Info</a>
+                    <a href="#resume" class="list-group-item list-group-item-action">Resume</a>
+                    <a href="#experience" class="list-group-item list-group-item-action">Experience</a>
+                    <a href="#education" class="list-group-item list-group-item-action">Education</a>
+                    <a href="#skills" class="list-group-item list-group-item-action">Skills</a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Profile Content -->
+        <div class="col-md-9">
+            <!-- Personal Information -->
+            <div id="personal" class="card mb-4">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0">Personal Information</h5>
+                    <button class="btn btn-primary btn-sm" onclick="enableEdit('personal-form')">
+                        <i class="fas fa-edit"></i> Edit
+                    </button>
+                </div>
+                <div class="card-body">
+                    <form id="personal-form" action="/profile/update" method="POST">
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <label class="form-label">First Name</label>
+                                <input type="text" class="form-control" name="firstName" value="<%= user.firstName %>" disabled>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label">Last Name</label>
+                                <input type="text" class="form-control" name="lastName" value="<%= user.lastName %>" disabled>
+                            </div>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Professional Title</label>
+                            <input type="text" class="form-control" name="title" value="<%= user.title %>" disabled>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Email</label>
+                            <input type="email" class="form-control" value="<%= user.email %>" disabled>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Phone</label>
+                            <input type="tel" class="form-control" name="phone" value="<%= user.phone %>" disabled>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Location</label>
+                            <input type="text" class="form-control" name="location" value="<%= user.location %>" disabled>
+                        </div>
+                        <div class="form-actions" style="display: none;">
+                            <button type="submit" class="btn btn-primary">Save Changes</button>
+                            <button type="button" class="btn btn-secondary" onclick="disableEdit('personal-form')">Cancel</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Resume Section -->
+            <div id="resume" class="card mb-4">
+                <div class="card-header">
+                    <h5 class="mb-0">Resume</h5>
+                </div>
+                <div class="card-body">
+                    <form action="/profile/resume" method="POST" enctype="multipart/form-data">
+                        <div class="mb-3">
+                            <label class="form-label">Upload Resume</label>
+                            <input type="file" class="form-control" name="resume" accept=".pdf,.doc,.docx">
+                        </div>
+                        <% if (user.resume) { %>
+                            <div class="current-resume">
+                                <p>Current Resume: <%= user.resume %></p>
+                                <a href="<%= user.resume %>" class="btn btn-sm btn-info" target="_blank">
+                                    <i class="fas fa-download"></i> Download
+                                </a>
+                            </div>
+                        <% } %>
+                        <button type="submit" class="btn btn-primary">Upload</button>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Experience Section -->
+            <div id="experience" class="card mb-4">
+                <!-- Similar structure to personal info with experience fields -->
+            </div>
+
+            <!-- Education Section -->
+            <div id="education" class="card mb-4">
+                <!-- Similar structure to personal info with education fields -->
+            </div>
+
+            <!-- Skills Section -->
+            <div id="skills" class="card mb-4">
+                <!-- Similar structure to personal info with skills fields -->
+            </div>
+        </div>
+    </div>
+</div>
+
+<%- include('../partials/avatar-modal') %> 

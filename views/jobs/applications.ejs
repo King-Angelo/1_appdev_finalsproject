@@ -1,0 +1,108 @@
+<%- include('../partials/header') %>
+
+<div class="container mt-5">
+    <div class="row">
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h2>My Applications</h2>
+                <a href="/jobs/search" class="btn btn-primary">
+                    <i class="bi bi-search"></i> Search New Jobs
+                </a>
+            </div>
+
+            <% if (error) { %>
+                <div class="alert alert-danger"><%= error %></div>
+            <% } %>
+
+            <% if (applications && applications.length > 0) { %>
+                <div class="table-responsive">
+                    <table class="table table-hover">
+                        <thead class="table-light">
+                            <tr>
+                                <th>Job Title</th>
+                                <th>Company</th>
+                                <th>Applied Date</th>
+                                <th>Status</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <% applications.forEach(function(application) { %>
+                                <tr>
+                                    <td>
+                                        <strong><%= application.job.title %></strong>
+                                        <div class="text-muted small"><%= application.job.location %></div>
+                                    </td>
+                                    <td><%= application.job.company %></td>
+                                    <td><%= new Date(application.createdAt).toLocaleDateString() %></td>
+                                    <td>
+                                        <% if (application.status === 'pending') { %>
+                                            <span class="badge bg-warning text-dark">Pending</span>
+                                        <% } else if (application.status === 'accepted') { %>
+                                            <span class="badge bg-success">Accepted</span>
+                                        <% } else if (application.status === 'rejected') { %>
+                                            <span class="badge bg-danger">Rejected</span>
+                                        <% } else { %>
+                                            <span class="badge bg-secondary">Unknown</span>
+                                        <% } %>
+                                    </td>
+                                    <td>
+                                        <div class="btn-group">
+                                            <a href="/jobs/applications/<%= application._id %>" class="btn btn-sm btn-outline-info">
+                                                View Details
+                                            </a>
+                                            <a href="/jobs/<%= application.job._id %>" class="btn btn-sm btn-outline-primary">
+                                                View Job
+                                            </a>
+                                            <button type="button" class="btn btn-sm btn-outline-danger" 
+                                                    onclick="withdrawApplication('<%= application._id %>')"
+                                                    <%= application.status !== 'pending' ? 'disabled' : '' %>>
+                                                Withdraw
+                                            </button>
+                                        </div>
+                                    </td>
+                                </tr>
+                            <% }); %>
+                        </tbody>
+                    </table>
+                </div>
+            <% } else { %>
+                <div class="card">
+                    <div class="card-body text-center py-5">
+                        <h4 class="text-muted mb-4">You haven't applied to any jobs yet</h4>
+                        <p class="mb-4">Start your job search and apply to positions that match your skills and interests.</p>
+                        <a href="/jobs/search" class="btn btn-primary">
+                            Browse Available Jobs
+                        </a>
+                    </div>
+                </div>
+            <% } %>
+        </div>
+    </div>
+</div>
+
+<script>
+function withdrawApplication(applicationId) {
+    if (confirm('Are you sure you want to withdraw this application?')) {
+        fetch(`/jobs/applications/${applicationId}/withdraw`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            }
+        })
+        .then(response => {
+            if (response.ok) {
+                window.location.reload();
+            } else {
+                alert('Failed to withdraw application. Please try again.');
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            alert('An error occurred. Please try again.');
+        });
+    }
+}
+</script>
+
+<%- include('../partials/footer') %> 

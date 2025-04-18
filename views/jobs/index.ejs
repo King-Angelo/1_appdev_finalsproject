@@ -1,0 +1,64 @@
+<%- include('../layouts/main', { title: 'Jobs' }) %>
+
+<div class="jobs-container">
+    <!-- Search and Filter Section -->
+    <div class="search-section mb-4">
+        <form action="/jobs/search" method="GET" class="row g-3">
+            <div class="col-md-4">
+                <input type="text" class="form-control" name="keyword" placeholder="Job title or keyword" value="<%= search?.keyword %>">
+            </div>
+            <div class="col-md-3">
+                <input type="text" class="form-control" name="location" placeholder="Location" value="<%= search?.location %>">
+            </div>
+            <div class="col-md-3">
+                <select class="form-select" name="category">
+                    <option value="">All Categories</option>
+                    <% categories.forEach(category => { %>
+                        <option value="<%= category._id %>" <%= search?.category === category._id ? 'selected' : '' %>>
+                            <%= category.name %>
+                        </option>
+                    <% }) %>
+                </select>
+            </div>
+            <div class="col-md-2">
+                <button type="submit" class="btn btn-primary w-100">Search</button>
+            </div>
+        </form>
+    </div>
+
+    <!-- Jobs List -->
+    <div class="jobs-list">
+        <% jobs.forEach(job => { %>
+            <div class="job-card card mb-3">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between">
+                        <div class="job-info">
+                            <h3 class="card-title">
+                                <a href="/jobs/<%= job._id %>"><%= job.title %></a>
+                            </h3>
+                            <div class="company-info">
+                                <img src="<%= job.company.logo %>" alt="<%= job.company.name %>" class="company-logo">
+                                <span><%= job.company.name %></span>
+                            </div>
+                            <div class="job-meta">
+                                <span><i class="fas fa-map-marker-alt"></i> <%= job.location %></span>
+                                <span><i class="fas fa-briefcase"></i> <%= job.type %></span>
+                                <span><i class="fas fa-money-bill-wave"></i> <%= job.salary %></span>
+                            </div>
+                        </div>
+                        <div class="job-actions">
+                            <a href="/jobs/<%= job._id %>" class="btn btn-outline-primary">View Details</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        <% }) %>
+    </div>
+
+    <!-- Pagination -->
+    <%- include('../partials/pagination', { 
+        currentPage: page, 
+        totalPages: Math.ceil(total / limit),
+        baseUrl: '/jobs'
+    }) %>
+</div> 

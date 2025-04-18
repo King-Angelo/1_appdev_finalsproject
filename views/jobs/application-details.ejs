@@ -1,0 +1,64 @@
+<%- include('../partials/header') %>
+
+<div class="container mt-4">
+    <div class="row">
+        <div class="col-md-8 offset-md-2">
+            <div class="card">
+                <div class="card-header">
+                    <h2 class="mb-0">Application Details</h2>
+                </div>
+                <div class="card-body">
+                    <h3 class="card-title">Job Information</h3>
+                    <div class="mb-4">
+                        <p><strong>Position:</strong> <%= application.jobId.title %></p>
+                        <p><strong>Company:</strong> <%= application.jobId.company %></p>
+                        <p><strong>Location:</strong> <%= application.jobId.location %></p>
+                    </div>
+
+                    <h3 class="card-title">Applicant Information</h3>
+                    <div class="mb-4">
+                        <p><strong>Name:</strong> <%= application.applicantId.firstName %> <%= application.applicantId.lastName %></p>
+                        <p><strong>Email:</strong> <%= application.applicantId.email %></p>
+                    </div>
+
+                    <h3 class="card-title">Application Details</h3>
+                    <div class="mb-4">
+                        <p><strong>Status:</strong> 
+                            <span class="badge <%= application.status === 'pending' ? 'bg-warning' : 
+                                                 application.status === 'accepted' ? 'bg-success' : 
+                                                 'bg-danger' %>">
+                                <%= application.status.charAt(0).toUpperCase() + application.status.slice(1) %>
+                            </span>
+                        </p>
+                        <p><strong>Applied On:</strong> <%= application.createdAt.toLocaleDateString() %></p>
+                        <% if (application.coverLetter) { %>
+                            <div class="mt-3">
+                                <h4>Cover Letter</h4>
+                                <div class="border p-3 rounded">
+                                    <%= application.coverLetter %>
+                                </div>
+                            </div>
+                        <% } %>
+                    </div>
+
+                    <% if (application.status === 'pending') { %>
+                        <div class="d-flex gap-2">
+                            <form action="/jobs/applications/<%= application._id %>/accept" method="POST" class="d-inline">
+                                <button type="submit" class="btn btn-success">Accept Application</button>
+                            </form>
+                            <form action="/jobs/applications/<%= application._id %>/reject" method="POST" class="d-inline">
+                                <button type="submit" class="btn btn-danger">Reject Application</button>
+                            </form>
+                        </div>
+                    <% } %>
+                </div>
+            </div>
+
+            <div class="mt-3">
+                <a href="/jobs/applications" class="btn btn-secondary">Back to Applications</a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<%- include('../partials/footer') %> 

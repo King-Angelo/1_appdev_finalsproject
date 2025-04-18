@@ -1,0 +1,101 @@
+<%- include('../partials/header') %>
+
+<div class="container mt-4">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <% if (error && error.length > 0) { %>
+                <div class="alert alert-danger" role="alert">
+                    <%= error %>
+                </div>
+            <% } %>
+            <% if (success && success.length > 0) { %>
+                <div class="alert alert-success" role="alert">
+                    <%= success %>
+                </div>
+            <% } %>
+
+            <div class="card">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h2 class="mb-0">Application Details</h2>
+                    <span class="badge bg-<%= application.status === 'pending' ? 'warning' : application.status === 'accepted' ? 'success' : 'danger' %>">
+                        <%= application.status.charAt(0).toUpperCase() + application.status.slice(1) %>
+                    </span>
+                </div>
+                <div class="card-body">
+                    <h3>Job Information</h3>
+                    <div class="mb-4">
+                        <h4><%= application.job.title %></h4>
+                        <p class="text-muted"><%= application.job.company %> - <%= application.job.location %></p>
+                        <span class="badge bg-primary"><%= application.job.type %></span>
+                    </div>
+
+                    <h3><%= user.role === 'employer' ? 'Applicant Information' : 'Your Information' %></h3>
+                    <div class="mb-4">
+                        <p><strong>Name:</strong> <%= application.applicant.firstName %> <%= application.applicant.lastName %></p>
+                        <p><strong>Email:</strong> <%= application.applicant.email %></p>
+                    </div>
+
+                    <h3>Cover Letter</h3>
+                    <div class="mb-4">
+                        <p class="white-space-pre-wrap"><%= application.coverLetter %></p>
+                    </div>
+
+                    <h3>Resume</h3>
+                    <div class="mb-4">
+                        <a href="<%= application.resume %>" class="btn btn-primary" target="_blank">
+                            <i class="bi bi-file-earmark-text"></i> View Resume
+                        </a>
+                    </div>
+
+                    <% if (user.role === 'employer' && application.status === 'pending') { %>
+                        <div class="mt-4">
+                            <h3>Update Application Status</h3>
+                            <div class="btn-group" role="group">
+                                <button class="btn btn-success" onclick="updateStatus('accepted')">Accept</button>
+                                <button class="btn btn-danger" onclick="updateStatus('rejected')">Reject</button>
+                            </div>
+                        </div>
+                    <% } %>
+                </div>
+            </div>
+
+            <div class="mt-3">
+                <a href="<%= user.role === 'employer' ? '/jobs/applications/overview' : '/jobs/applications' %>" class="btn btn-secondary">
+                    Back to Applications
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+.white-space-pre-wrap {
+    white-space: pre-wrap;
+}
+</style>
+
+<% if (user.role === 'employer') { %>
+<script>
+function updateStatus(status) {
+    fetch('/jobs/applications/<%= application._id %>/status', {
+        method: 'PUT',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ status })
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.message) {
+            location.reload();
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        alert('Error updating application status');
+    });
+}
+</script>
+<% } %>
+
+<%- include('../partials/footer') %> 

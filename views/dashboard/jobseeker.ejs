@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>JobSeeker Dashboard</title>
+    <link rel="stylesheet" href="/css/dashboard.css">
+</head>
+<body>
+    <%- include('../partials/header') %>
+    
+    <div class="dashboard-container">
+        <div class="stats-section">
+            <div class="stat-card">
+                <h3>Total Applications</h3>
+                <p><%= stats.totalApplications %></p>
+            </div>
+            <div class="stat-card">
+                <h3>Pending</h3>
+                <p><%= stats.pendingApplications %></p>
+            </div>
+            <div class="stat-card">
+                <h3>Shortlisted</h3>
+                <p><%= stats.shortlisted %></p>
+            </div>
+        </div>
+
+        <div class="applications">
+            <h2>Your Applications</h2>
+            <% applications.forEach(application => { %>
+                <div class="application-card">
+                    <h3><%= application.job.title %></h3>
+                    <p>Company: <%= application.job.company %></p>
+                    <p>Status: <%= application.status %></p>
+                    <p>Applied: <%= application.createdAt.toLocaleDateString() %></p>
+                    <a href="/applications/<%= application._id %>" class="btn">View Details</a>
+                </div>
+            <% }) %>
+        </div>
+
+        <div class="recommended-jobs">
+            <h2>Recommended Jobs</h2>
+            <% recommendedJobs.forEach(job => { %>
+                <div class="job-card">
+                    <h3><%= job.title %></h3>
+                    <p><%= job.company %></p>
+                    <p><%= job.location %></p>
+                    <a href="/jobs/<%= job._id %>" class="btn">View Job</a>
+                </div>
+            <% }) %>
+        </div>
+    </div>
+
+    <%- include('../partials/footer') %>
+</body>
+</html> 

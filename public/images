@@ -1,0 +1,17 @@
+public/images/
+├── logo/                # Logo variations
+│   ├── logo.svg
+│   ├── logo-dark.svg
+│   └── favicon.ico
+├── icons/              # UI icons
+│   ├── search.svg
+│   ├── user.svg
+│   ├── notification.svg
+│   └── more.svg
+├── backgrounds/        # Background images
+│   ├── hero.jpg
+│   └── pattern.svg
+└── placeholders/      # Placeholder images
+    ├── profile.png
+    ├── company.png
+    └── job.png 

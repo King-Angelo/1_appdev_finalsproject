@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Employer Analytics</title>
+    <link rel="stylesheet" href="/css/analytics.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+    <%- include('../partials/header') %>
+    
+    <div class="analytics-container">
+        <div class="chart-section">
+            <h2>Job Posting Analytics</h2>
+            <canvas id="jobStatsChart"></canvas>
+        </div>
+
+        <div class="chart-section">
+            <h2>Application Statistics</h2>
+            <canvas id="applicationStatsChart"></canvas>
+        </div>
+
+        <div class="metrics-section">
+            <div class="metric-card">
+                <h3>Average Response Time</h3>
+                <p><%= Math.round(responseTimeStats) %> hours</p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Initialize charts with the data
+        const jobStatsCtx = document.getElementById('jobStatsChart').getContext('2d');
+        new Chart(jobStatsCtx, {
+            type: 'pie',
+            data: {
+                labels: <%- JSON.stringify(jobStats.map(stat => stat._id)) %>,
+                datasets: [{
+                    data: <%- JSON.stringify(jobStats.map(stat => stat.count)) %>,
+                    backgroundColor: ['#FF6384', '#36A2EB', '#FFCE56']
+                }]
+            }
+        });
+
+        const applicationStatsCtx = document.getElementById('applicationStatsChart').getContext('2d');
+        new Chart(applicationStatsCtx, {
+            type: 'bar',
+            data: {
+                labels: <%- JSON.stringify(applicationStats.map(stat => stat._id)) %>,
+                datasets: [{
+                    label: 'Applications',
+                    data: <%- JSON.stringify(applicationStats.map(stat => stat.count)) %>,
+                    backgroundColor: '#36A2EB'
+                }]
+            }
+        });
+    </script>
+
+    <%- include('../partials/footer') %>
+</body>
+</html> 

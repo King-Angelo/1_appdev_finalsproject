@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title><%= title %> - Job Portal</title>
+    
+    <!-- CSS -->
+    <link rel="stylesheet" href="/css/main.css">
+    <% if (locals.pageStyles) { %>
+        <link rel="stylesheet" href="/css/pages/<%= pageStyles %>.css">
+    <% } %>
+    
+    <!-- Favicon -->
+    <link rel="icon" type="image/x-icon" href="/images/logo/favicon.ico">
+</head>
+<body class="<%= locals.theme || 'light-theme' %>">
+    <%- include('../partials/header') %>
+    
+    <main class="container">
+        <%- body %>
+    </main>
+    
+    <%- include('../partials/footer') %>
+    
+    <!-- JavaScript -->
+    <script src="/js/main.js" type="module"></script>
+    <% if (locals.pageScripts) { %>
+        <script src="/js/pages/<%= pageScripts %>.js" type="module"></script>
+    <% } %>
+</body>
+</html> 

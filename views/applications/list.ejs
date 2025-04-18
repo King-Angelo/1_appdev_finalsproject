@@ -1,0 +1,74 @@
+<%- include('../layouts/main', { title: 'My Applications' }) %>
+
+<div class="applications-container">
+    <!-- Filter Section -->
+    <div class="filter-section card mb-4">
+        <div class="card-body">
+            <form class="row g-3" method="GET">
+                <div class="col-md-4">
+                    <select class="form-select" name="status">
+                        <option value="">All Status</option>
+                        <option value="pending" <%= filter.status === 'pending' ? 'selected' : '' %>>Pending</option>
+                        <option value="reviewing" <%= filter.status === 'reviewing' ? 'selected' : '' %>>Reviewing</option>
+                        <option value="accepted" <%= filter.status === 'accepted' ? 'selected' : '' %>>Accepted</option>
+                        <option value="rejected" <%= filter.status === 'rejected' ? 'selected' : '' %>>Rejected</option>
+                    </select>
+                </div>
+                <div class="col-md-4">
+                    <input type="date" class="form-control" name="date" value="<%= filter.date %>">
+                </div>
+                <div class="col-md-4">
+                    <button type="submit" class="btn btn-primary w-100">Filter</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Applications List -->
+    <div class="applications-list">
+        <% applications.forEach(application => { %>
+            <div class="application-card card mb-3">
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-8">
+                            <h4 class="card-title">
+                                <a href="/jobs/<%= application.job._id %>"><%= application.job.title %></a>
+                            </h4>
+                            <div class="company-info">
+                                <img src="<%= application.job.company.logo %>" alt="Company Logo" class="company-logo">
+                                <span><%= application.job.company.name %></span>
+                            </div>
+                            <div class="application-meta">
+                                <span class="badge bg-<%= getStatusColor(application.status) %>">
+                                    <%= application.status %>
+                                </span>
+                                <span class="text-muted">Applied on <%= formatDate(application.createdAt) %></span>
+                            </div>
+                        </div>
+                        <div class="col-md-4 text-end">
+                            <a href="/applications/<%= application._id %>" class="btn btn-outline-primary">
+                                View Details
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        <% }) %>
+
+        <% if (applications.length === 0) { %>
+            <div class="text-center py-5">
+                <img src="/images/no-applications.svg" alt="No Applications" class="mb-3" style="width: 200px;">
+                <h3>No Applications Found</h3>
+                <p class="text-muted">Start applying for jobs to see your applications here.</p>
+                <a href="/jobs" class="btn btn-primary">Browse Jobs</a>
+            </div>
+        <% } %>
+    </div>
+
+    <!-- Pagination -->
+    <%- include('../partials/pagination', { 
+        currentPage: page, 
+        totalPages: Math.ceil(total / limit),
+        baseUrl: '/applications'
+    }) %>
+</div> 

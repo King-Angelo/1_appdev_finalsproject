@@ -1,0 +1,103 @@
+<%- include('../layouts/admin', { title: 'Admin Dashboard' }) %>
+
+<div class="admin-dashboard">
+    <!-- Stats Overview -->
+    <div class="row mb-4">
+        <div class="col-md-3">
+            <div class="card stat-card">
+                <div class="card-body">
+                    <h5>Total Users</h5>
+                    <h2><%= stats.totalUsers %></h2>
+                    <p class="trend <%= stats.usersTrend > 0 ? 'up' : 'down' %>">
+                        <i class="fas fa-arrow-<%= stats.usersTrend > 0 ? 'up' : 'down' %>"></i>
+                        <%= Math.abs(stats.usersTrend) %>% this month
+                    </p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card stat-card">
+                <div class="card-body">
+                    <h5>Active Jobs</h5>
+                    <h2><%= stats.activeJobs %></h2>
+                    <p class="trend <%= stats.jobsTrend > 0 ? 'up' : 'down' %>">
+                        <i class="fas fa-arrow-<%= stats.jobsTrend > 0 ? 'up' : 'down' %>"></i>
+                        <%= Math.abs(stats.jobsTrend) %>% this month
+                    </p>
+                </div>
+            </div>
+        </div>
+        <!-- Add more stat cards -->
+    </div>
+
+    <!-- Recent Activity -->
+    <div class="card mb-4">
+        <div class="card-header">
+            <h5 class="mb-0">Recent Activity</h5>
+        </div>
+        <div class="card-body">
+            <div class="activity-list">
+                <% activities.forEach(activity => { %>
+                    <div class="activity-item">
+                        <div class="activity-icon">
+                            <i class="fas fa-<%= getActivityIcon(activity.type) %>"></i>
+                        </div>
+                        <div class="activity-details">
+                            <p><%= activity.description %></p>
+                            <small class="text-muted"><%= timeAgo(activity.createdAt) %></small>
+                        </div>
+                    </div>
+                <% }) %>
+            </div>
+        </div>
+    </div>
+
+    <!-- Latest Users -->
+    <div class="row">
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0">Latest Users</h5>
+                    <a href="/admin/users" class="btn btn-sm btn-primary">View All</a>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table">
+                            <thead>
+                                <tr>
+                                    <th>User</th>
+                                    <th>Role</th>
+                                    <th>Joined</th>
+                                    <th>Status</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <% latestUsers.forEach(user => { %>
+                                    <tr>
+                                        <td>
+                                            <div class="d-flex align-items-center">
+                                                <img src="<%= user.avatar %>" class="rounded-circle me-2" width="32">
+                                                <%= user.firstName %> <%= user.lastName %>
+                                            </div>
+                                        </td>
+                                        <td><%= user.role %></td>
+                                        <td><%= formatDate(user.createdAt) %></td>
+                                        <td>
+                                            <span class="badge bg-<%= getStatusColor(user.status) %>">
+                                                <%= user.status %>
+                                            </span>
+                                        </td>
+                                    </tr>
+                                <% }) %>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-6">
+            <!-- Similar table for Latest Jobs -->
+        </div>
+    </div>
+</div> 

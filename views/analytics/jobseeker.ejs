@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>JobSeeker Analytics</title>
+    <link rel="stylesheet" href="/css/analytics.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+    <%- include('../partials/header') %>
+    
+    <div class="analytics-container">
+        <div class="chart-section">
+            <h2>Application Status Distribution</h2>
+            <canvas id="applicationStatsChart"></canvas>
+        </div>
+
+        <div class="chart-section">
+            <h2>Application Timeline</h2>
+            <canvas id="timelineChart"></canvas>
+        </div>
+
+        <div class="metrics-section">
+            <div class="metric-card">
+                <h3>Skills Match Jobs</h3>
+                <p><%= skillMatchJobs %> jobs match your skills</p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Initialize charts with the data
+        const applicationStatsCtx = document.getElementById('applicationStatsChart').getContext('2d');
+        new Chart(applicationStatsCtx, {
+            type: 'pie',
+            data: {
+                labels: <%- JSON.stringify(applicationStats.map(stat => stat._id)) %>,
+                datasets: [{
+                    data: <%- JSON.stringify(applicationStats.map(stat => stat.count)) %>,
+                    backgroundColor: ['#FF6384', '#36A2EB', '#FFCE56']
+                }]
+            }
+        });
+
+        const timelineCtx = document.getElementById('timelineChart').getContext('2d');
+        new Chart(timelineCtx, {
+            type: 'line',
+            data: {
+                labels: <%- JSON.stringify(applicationTimeline.map(point => point._id)) %>,
+                datasets: [{
+                    label: 'Applications',
+                    data: <%- JSON.stringify(applicationTimeline.map(point => point.count)) %>,
+                    borderColor: '#36A2EB',
+                    tension: 0.1
+                }]
+            }
+        });
+    </script>
+
+    <%- include('../partials/footer') %>
+</body>
+</html> 

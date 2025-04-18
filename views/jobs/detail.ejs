@@ -1,0 +1,110 @@
+<%- include('../layouts/main', { title: job.title }) %>
+
+<div class="job-detail-container">
+    <div class="row">
+        <div class="col-md-8">
+            <!-- Job Header -->
+            <div class="job-header card mb-4">
+                <div class="card-body">
+                    <h1 class="job-title"><%= job.title %></h1>
+                    <div class="company-info d-flex align-items-center mb-3">
+                        <img src="<%= job.company.logo %>" alt="<%= job.company.name %>" class="company-logo me-2">
+                        <div>
+                            <h3><%= job.company.name %></h3>
+                            <p><i class="fas fa-map-marker-alt"></i> <%= job.location %></p>
+                        </div>
+                    </div>
+                    <div class="job-meta">
+                        <span class="badge bg-primary"><%= job.type %></span>
+                        <span class="badge bg-info"><%= job.category %></span>
+                        <span class="badge bg-success"><%= job.salary %></span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Job Description -->
+            <div class="job-description card mb-4">
+                <div class="card-body">
+                    <h2>Job Description</h2>
+                    <%- job.description %>
+
+                    <h2 class="mt-4">Requirements</h2>
+                    <ul>
+                        <% job.requirements.forEach(requirement => { %>
+                            <li><%= requirement %></li>
+                        <% }) %>
+                    </ul>
+
+                    <h2 class="mt-4">Benefits</h2>
+                    <ul>
+                        <% job.benefits.forEach(benefit => { %>
+                            <li><%= benefit %></li>
+                        <% }) %>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-4">
+            <!-- Application Card -->
+            <div class="application-card card mb-4 sticky-top">
+                <div class="card-body">
+                    <% if (user) { %>
+                        <% if (user.role === 'jobseeker') { %>
+                            <% if (hasApplied) { %>
+                                <button class="btn btn-secondary w-100" disabled>Already Applied</button>
+                            <% } else { %>
+                                <button class="btn btn-primary w-100" data-bs-toggle="modal" data-bs-target="#applyModal">
+                                    Apply Now
+                                </button>
+                            <% } %>
+                        <% } %>
+                    <% } else { %>
+                        <a href="/auth/login" class="btn btn-primary w-100">Login to Apply</a>
+                    <% } %>
+
+                    <div class="job-highlights mt-4">
+                        <div class="highlight-item">
+                            <i class="fas fa-clock"></i>
+                            <span>Posted <%= timeAgo(job.createdAt) %></span>
+                        </div>
+                        <div class="highlight-item">
+                            <i class="fas fa-users"></i>
+                            <span><%= job.applicants.length %> applicants</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Apply Modal -->
+<% if (user && user.role === 'jobseeker' && !hasApplied) { %>
+    <div class="modal fade" id="applyModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <form action="/jobs/<%= job._id %>/apply" method="POST" enctype="multipart/form-data">
+                    <div class="modal-header">
+                        <h5 class="modal-title">Apply for <%= job.title %></h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="mb-3">
+                            <label class="form-label">Cover Letter</label>
+                            <textarea class="form-control" name="coverLetter" rows="5" required></textarea>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Resume</label>
+                            <input type="file" class="form-control" name="resume" accept=".pdf,.doc,.docx" required>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                        <button type="submit" class="btn btn-primary">Submit Application</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+<% } %> 
